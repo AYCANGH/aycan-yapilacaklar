@@ -37,6 +37,7 @@
 
     .header-left h1 { font-size: 1.5rem; font-weight: 700; }
     .header-left p { margin-top: 4px; font-size: 0.875rem; opacity: 0.8; }
+    #user-info { margin-top: 6px; font-size: 0.8rem; opacity: 0.75; }
 
     #logout-btn {
       background: rgba(255,255,255,0.2);
@@ -280,6 +281,7 @@
     <div class="header-left">
       <h1>AYCAN YAPILACAKLAR</h1>
       <p id="date"></p>
+      <p id="user-info" style="display:none"></p>
     </div>
     <button id="logout-btn" style="display:none" onclick="logout()">Çıkış Yap</button>
   </div>
@@ -496,6 +498,16 @@
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('todo-screen').style.display = 'block';
     document.getElementById('logout-btn').style.display = 'block';
+
+    // JWT payload'dan e-postayı oku
+    try {
+      const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+      const email = payload.email || '';
+      const userEl = document.getElementById('user-info');
+      userEl.textContent = '👤 ' + email;
+      userEl.style.display = 'block';
+    } catch(e) {}
+
     fetchTodos();
   }
 
@@ -503,6 +515,7 @@
     document.getElementById('auth-screen').style.display = 'block';
     document.getElementById('todo-screen').style.display = 'none';
     document.getElementById('logout-btn').style.display = 'none';
+    document.getElementById('user-info').style.display = 'none';
   }
 
   // --- UYGULAMA BAŞLAT ---
