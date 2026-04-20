@@ -499,14 +499,16 @@
     document.getElementById('todo-screen').style.display = 'block';
     document.getElementById('logout-btn').style.display = 'block';
 
-    // JWT payload'dan e-postayı oku
+    // JWT payload'dan e-postayı oku (base64url → base64 dönüşümü gerekli)
     try {
-      const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+      const b64 = session.access_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = b64 + '=='.slice(0, (4 - b64.length % 4) % 4);
+      const payload = JSON.parse(atob(padded));
       const email = payload.email || '';
       const userEl = document.getElementById('user-info');
       userEl.textContent = '👤 ' + email;
       userEl.style.display = 'block';
-    } catch(e) {}
+    } catch(e) { console.error('JWT parse error:', e); }
 
     fetchTodos();
   }
