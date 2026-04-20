@@ -273,6 +273,25 @@
 
     #todo-screen { display: none; }
     #auth-screen { display: block; }
+
+    /* ÇİÇEK ANİMASYONU */
+    .flower {
+      position: fixed;
+      bottom: -60px;
+      font-size: 2rem;
+      animation: bloom 2.8s ease-out forwards;
+      pointer-events: none;
+      z-index: 9999;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    }
+
+    @keyframes bloom {
+      0%   { transform: translateY(0) scale(0) rotate(0deg); opacity: 0; }
+      20%  { opacity: 1; transform: translateY(-40px) scale(0.4) rotate(-10deg); }
+      60%  { transform: translateY(-180px) scale(1.2) rotate(8deg); opacity: 1; }
+      85%  { transform: translateY(-260px) scale(1) rotate(-4deg); opacity: 0.85; }
+      100% { transform: translateY(-320px) scale(0.7) rotate(5deg); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -568,12 +587,31 @@
   async function toggleTodo(id) {
     const todo = todos.find(t => t.id === id);
     if (!todo) return;
+    const becomingDone = !todo.done;
     await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${id}`, {
       method: 'PATCH',
       headers: todoHeaders(),
-      body: JSON.stringify({ done: !todo.done })
+      body: JSON.stringify({ done: becomingDone })
     });
+    if (becomingDone) bloomFlowers();
     await fetchTodos();
+  }
+
+  function bloomFlowers() {
+    const flowers = ['🌸','🌺','🌼','🌻','🌷','💐','🪷','🌹'];
+    const count = 6 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const el = document.createElement('span');
+        el.className = 'flower';
+        el.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+        el.style.left = (5 + Math.random() * 90) + 'vw';
+        el.style.fontSize = (1.5 + Math.random() * 1.8) + 'rem';
+        el.style.animationDuration = (2.2 + Math.random() * 1.2) + 's';
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }, i * 90);
+    }
   }
 
   async function deleteTodo(id) {
